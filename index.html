@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#050507" />
+    <title>Beyond Terra</title>
+    <meta name="description" content="Explore Jezero Crater on Mars with NASA Mars Trek imagery." />
+
+    <!-- Preload the intro's critical assets so the reveal starts without a visible load -->
+    <link rel="preload" href="/textures/mars_color_2k.jpg" as="image" />
+    <link rel="preload" href="/textures/mars_normal_2k.jpg" as="image" />
+
+    <!-- Map imagery comes straight from NASA Mars Trek; open the connection while the intro plays -->
+    <link rel="preconnect" href="https://trek.nasa.gov" />
+    <link rel="dns-prefetch" href="https://trek.nasa.gov" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    />
+    <style>
+      /* Paint the space black before any JS runs, so there is never a white flash */
+      html, body { background: #050507; margin: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
