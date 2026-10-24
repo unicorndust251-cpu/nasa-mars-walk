@@ -21,6 +21,17 @@ export function prepareMarsTextures({ color, normal }, renderer) {
 }
 
 /**
+ * Albedo grade shared by every Mars surface: pulls the colour back toward the dusty,
+ * slightly desaturated tone of calibrated NASA imagery. Runs after <map_fragment>.
+ */
+export const MARS_ALBEDO_GRADE = /* glsl */ `
+        {
+          float luma = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+          diffuseColor.rgb = mix(vec3(luma), diffuseColor.rgb, 0.74);
+          diffuseColor.rgb *= vec3(1.03, 0.93, 0.86);
+        }`;
+
+/**
  * Mars surface: a MeshStandardMaterial (PBR, real lighting + normal-mapped relief)
  * extended with three subtle shader touches:
  *  1. colour grading that pulls the albedo back toward the dusty, slightly desaturated
@@ -58,12 +69,7 @@ export function createMarsMaterial({ color, normal }) {
       )
       .replace(
         '#include <map_fragment>',
-        `#include <map_fragment>
-        {
-          float luma = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-          diffuseColor.rgb = mix(vec3(luma), diffuseColor.rgb, 0.74);
-          diffuseColor.rgb *= vec3(1.03, 0.93, 0.86);
-        }`
+        `#include <map_fragment>${MARS_ALBEDO_GRADE}`
       )
       .replace(
         '#include <dithering_fragment>',

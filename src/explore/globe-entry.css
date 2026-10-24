@@ -1,0 +1,79 @@
+/* Pieces of the globe explorer that load with the map: the entry button and shared icons. */
+
+/* ---------------------------------------------------------------- icons */
+.bt-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bt-icon .bt-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* ---------------------------------------------------- map entry button */
+.bt-globe-entry {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 0 16px 0 12px;
+  border: 1px solid rgba(214, 163, 139, 0.4);
+  border-radius: 12px;
+  background: rgba(36, 29, 27, 0.86);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 24px rgba(10, 8, 7, 0.35);
+  color: var(--bt-ivory);
+  font: 600 14px/1 var(--bt-font-ui);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.bt-globe-entry .bt-icon {
+  color: #ffb07a;
+}
+
+.bt-globe-entry:hover {
+  background: rgba(99, 80, 74, 0.9);
+  border-color: rgba(255, 176, 122, 0.6);
+}
+
+.bt-globe-entry:focus-visible {
+  outline: 2px solid var(--bt-copper);
+  outline-offset: 2px;
+}
+
+.bt-globe-entry__count {
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(255, 176, 122, 0.16);
+  font: 500 11px/1 var(--bt-font-data);
+  color: #ffb07a;
+}
+
+.bt-map--blurred .bt-globe-entry {
+  opacity: 0;
+}
+
+.bt-map--sharpening .bt-globe-entry {
+  opacity: 0;
+  animation: bt-chrome-in 0.8s ease 1.4s forwards;
+}
+
+/* Shown for the moment the explorer's code is loading, so the map never flashes through */
+.bt-explorer-pending {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: #050507;
+}

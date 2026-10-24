@@ -11,7 +11,7 @@ function safeSession(fn, fallback) {
   }
 }
 
-/** Show the intro once per browsing session. `?intro` in the URL forces a replay. */
+/** Always show the intro on page load; the URL flag can still force a replay if needed. */
 export function shouldPlayIntro() {
   if (typeof window === 'undefined') return false;
   try {
@@ -19,7 +19,7 @@ export function shouldPlayIntro() {
   } catch {
     /* ignore */
   }
-  return safeSession((s) => s.getItem(INTRO.sessionKey) !== '1', true);
+  return true;
 }
 
 export function markIntroPlayed() {
