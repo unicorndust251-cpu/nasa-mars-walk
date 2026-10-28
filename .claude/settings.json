@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -o -i -E '<[a-z_:]*\\(latitude|longitude|scale|nodata|missing|offset|projection|radius|resolution|map_scale|sample|line|valid|constant\\)[a-z_:]*[^>]*>[^<]{0,60}' C:/Users/HUAWEI/AppData/Local/Temp/claude/c--Users-HUAWEI-Downloads-beyond-terra-nasa-mars-walk/477d3a0d-268b-4bd6-8af8-4e2103cccd8a/scratchpad/nasa-data/m20_jezerocrater_ctxdem_20m.xml)",
+      "Bash(time node --max-old-space-size=4096 scripts/build-jezero-terrain.mjs \"C:/Users/HUAWEI/AppData/Local/Temp/claude/c--Users-HUAWEI-Downloads-beyond-terra-nasa-mars-walk/477d3a0d-268b-4bd6-8af8-4e2103cccd8a/scratchpad/nasa-data/M20_JezeroCrater_CTXDEM_20m.tif\")",
+      "Bash(node -e ' *)",
+      "Bash(npm ls *)",
+      "Bash(node scripts/build-jezero-locations.mjs \"C:/Users/HUAWEI/AppData/Local/Temp/claude/c--Users-HUAWEI-Downloads-beyond-terra-nasa-mars-walk/477d3a0d-268b-4bd6-8af8-4e2103cccd8a/scratchpad/nasa-data/M20_waypoints.json\")"
+    ]
+  }
+}

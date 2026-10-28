@@ -1,0 +1,581 @@
+{
+  "generatedFrom": [
+    "NASA Mars 2020 rock samples list: https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples/",
+    "NASA Mars 2020 MMGIS rover localizations: https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json"
+  ],
+  "method": "Each sample is placed at the rover’s last localized position on or before the sol the sample was sealed.",
+  "coordinateConvention": "Planetocentric latitude, longitude positive east (−180…180), Mars 2000 sphere",
+  "landing": {
+    "lat": 18.444627,
+    "lon": 77.450886,
+    "elevationM": -2569.9,
+    "localization": {
+      "sol": 13,
+      "site": 3,
+      "drive": 0,
+      "note": "Site increment, no motion."
+    }
+  },
+  "samples": [
+    {
+      "number": 1,
+      "name": "Roubion",
+      "solSealed": 164,
+      "dateSealed": "2021-08-06",
+      "feature": "Roubion",
+      "location": "Polygon Valley",
+      "type": "Atmospheric",
+      "lat": 18.427695,
+      "lon": 77.45165,
+      "elevationM": -2584.9,
+      "localization": {
+        "sol": 157,
+        "site": 6,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 26,
+      "nextLocalizationSol": 168
+    },
+    {
+      "number": 2,
+      "name": "Montdenier",
+      "solSealed": 194,
+      "dateSealed": "2021-09-06",
+      "feature": "Rochette",
+      "location": "Artuby Ridge",
+      "type": "Igneous",
+      "lat": 18.430739,
+      "lon": 77.444366,
+      "elevationM": -2574.5,
+      "localization": {
+        "sol": 180,
+        "site": 7,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 65,
+      "nextLocalizationSol": 199
+    },
+    {
+      "number": 3,
+      "name": "Montagnac",
+      "solSealed": 196,
+      "dateSealed": "2021-09-08",
+      "feature": "Rochette",
+      "location": "Artuby Ridge",
+      "type": "Igneous",
+      "lat": 18.430739,
+      "lon": 77.444366,
+      "elevationM": -2574.5,
+      "localization": {
+        "sol": 180,
+        "site": 7,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 65,
+      "nextLocalizationSol": 199
+    },
+    {
+      "number": 4,
+      "name": "Salette",
+      "solSealed": 262,
+      "dateSealed": "2021-11-15",
+      "feature": "Brac",
+      "location": "South Séítah",
+      "type": "Igneous",
+      "lat": 18.433964,
+      "lon": 77.443019,
+      "elevationM": -2569.2,
+      "localization": {
+        "sol": 248,
+        "site": 8,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 3,
+      "nextLocalizationSol": 278
+    },
+    {
+      "number": 5,
+      "name": "Coulettes",
+      "solSealed": 271,
+      "dateSealed": "2021-11-24",
+      "feature": "Brac",
+      "location": "South Séítah",
+      "type": "Igneous",
+      "lat": 18.433964,
+      "lon": 77.443019,
+      "elevationM": -2569.2,
+      "localization": {
+        "sol": 248,
+        "site": 8,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 3,
+      "nextLocalizationSol": 278
+    },
+    {
+      "number": 6,
+      "name": "Robine",
+      "solSealed": 298,
+      "dateSealed": "2021-12-22",
+      "feature": "Issole",
+      "location": "South Séítah",
+      "type": "Igneous",
+      "lat": 18.432661,
+      "lon": 77.441373,
+      "elevationM": -2574.4,
+      "localization": {
+        "sol": 286,
+        "site": 9,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 4,
+      "nextLocalizationSol": 328
+    },
+    {
+      "number": 7,
+      "name": "Malay",
+      "solSealed": 337,
+      "dateSealed": "2022-01-31",
+      "feature": "Issole",
+      "location": "South Séítah",
+      "type": "Igneous",
+      "lat": 18.432609,
+      "lon": 77.441314,
+      "elevationM": -2574.2,
+      "localization": {
+        "sol": 335,
+        "site": 9,
+        "drive": 276,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 18,
+      "nextLocalizationSol": 340
+    },
+    {
+      "number": 8,
+      "name": "Ha’ahóni",
+      "solSealed": 371,
+      "dateSealed": "2022-03-07",
+      "feature": "Sid",
+      "location": "Octavia E. Butler Landing / Ch’ał outcrop",
+      "type": "Igneous",
+      "lat": 18.443902,
+      "lon": 77.452434,
+      "elevationM": -2568.7,
+      "localization": {
+        "sol": 362,
+        "site": 11,
+        "drive": 108,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 148,
+      "nextLocalizationSol": 379
+    },
+    {
+      "number": 9,
+      "name": "Atsá",
+      "solSealed": 377,
+      "dateSealed": "2022-03-13",
+      "feature": "Sid",
+      "location": "Octavia E. Butler Landing / Ch’ał outcrop",
+      "type": "Igneous",
+      "lat": 18.443902,
+      "lon": 77.452434,
+      "elevationM": -2568.7,
+      "localization": {
+        "sol": 362,
+        "site": 11,
+        "drive": 108,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 148,
+      "nextLocalizationSol": 379
+    },
+    {
+      "number": 10,
+      "name": "Swift Run",
+      "solSealed": 490,
+      "dateSealed": "2022-07-07",
+      "feature": "Skinner Ridge",
+      "location": "Delta Front",
+      "type": "Sedimentary",
+      "lat": 18.458895,
+      "lon": 77.406168,
+      "elevationM": -2520.9,
+      "localization": {
+        "sol": 477,
+        "site": 26,
+        "drive": 1004,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 13,
+      "nextLocalizationSol": 501
+    },
+    {
+      "number": 11,
+      "name": "Skyland",
+      "solSealed": 495,
+      "dateSealed": "2022-07-12",
+      "feature": "Skinner Ridge",
+      "location": "Delta Front",
+      "type": "Sedimentary",
+      "lat": 18.458895,
+      "lon": 77.406168,
+      "elevationM": -2520.9,
+      "localization": {
+        "sol": 477,
+        "site": 26,
+        "drive": 1004,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 13,
+      "nextLocalizationSol": 501
+    },
+    {
+      "number": 12,
+      "name": "Hazeltop",
+      "solSealed": 509,
+      "dateSealed": "2022-07-27",
+      "feature": "Wildcat Ridge",
+      "location": "Delta Front",
+      "type": "Sedimentary",
+      "lat": 18.458647,
+      "lon": 77.405925,
+      "elevationM": -2523.2,
+      "localization": {
+        "sol": 502,
+        "site": 26,
+        "drive": 1222,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 81,
+      "nextLocalizationSol": 535
+    },
+    {
+      "number": 13,
+      "name": "Bearwallow",
+      "solSealed": 516,
+      "dateSealed": "2022-08-03",
+      "feature": "Wildcat Ridge",
+      "location": "Delta Front",
+      "type": "Sedimentary",
+      "lat": 18.458647,
+      "lon": 77.405925,
+      "elevationM": -2523.2,
+      "localization": {
+        "sol": 502,
+        "site": 26,
+        "drive": 1222,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 81,
+      "nextLocalizationSol": 535
+    },
+    {
+      "number": 14,
+      "name": "Shuyak",
+      "solSealed": 575,
+      "dateSealed": "2022-10-02",
+      "feature": "Amalik",
+      "location": "Delta Front",
+      "type": "Sedimentary",
+      "lat": 18.450726,
+      "lon": 77.40144,
+      "elevationM": -2526.5,
+      "localization": {
+        "sol": 565,
+        "site": 29,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 18,
+      "nextLocalizationSol": 592
+    },
+    {
+      "number": 15,
+      "name": "Mageik",
+      "solSealed": 619,
+      "dateSealed": "2022-11-16",
+      "feature": "Amalik",
+      "location": "Delta Front",
+      "type": "Sedimentary",
+      "lat": 18.453644,
+      "lon": 77.399154,
+      "elevationM": -2517.3,
+      "localization": {
+        "sol": 609,
+        "site": 30,
+        "drive": 1172,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 43,
+      "nextLocalizationSol": 629
+    },
+    {
+      "number": 16,
+      "name": "Kukaklek",
+      "solSealed": 631,
+      "dateSealed": "2022-11-29",
+      "feature": "Hidden Harbor",
+      "location": "Delta Front",
+      "type": "Sedimentary",
+      "lat": 18.451625,
+      "lon": 77.401437,
+      "elevationM": -2523.8,
+      "localization": {
+        "sol": 629,
+        "site": 30,
+        "drive": 2188,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 0,
+      "nextLocalizationSol": 632
+    },
+    {
+      "number": 17,
+      "name": "Atmo Mountain",
+      "solSealed": 634,
+      "dateSealed": "2022-12-02",
+      "feature": "Observation Mountain",
+      "location": "Delta Front",
+      "type": "Regolith",
+      "lat": 18.451331,
+      "lon": 77.401257,
+      "elevationM": -2525.3,
+      "localization": {
+        "sol": 632,
+        "site": 31,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 80,
+      "nextLocalizationSol": 641
+    },
+    {
+      "number": 18,
+      "name": "Crosswind Lake",
+      "solSealed": 639,
+      "dateSealed": "2022-12-07",
+      "feature": "Observation Mountain",
+      "location": "Delta Front",
+      "type": "Regolith",
+      "lat": 18.451331,
+      "lon": 77.401257,
+      "elevationM": -2525.3,
+      "localization": {
+        "sol": 632,
+        "site": 31,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 80,
+      "nextLocalizationSol": 641
+    },
+    {
+      "number": 19,
+      "name": "Melyn",
+      "solSealed": 749,
+      "dateSealed": "2023-03-30",
+      "feature": "Berea",
+      "location": "Upper Fan",
+      "type": "Sedimentary",
+      "lat": 18.470212,
+      "lon": 77.383988,
+      "elevationM": -2449.1,
+      "localization": {
+        "sol": 736,
+        "site": 37,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 263,
+      "nextLocalizationSol": 753
+    },
+    {
+      "number": 20,
+      "name": "Otis Peak",
+      "solSealed": 832,
+      "dateSealed": "2023-06-23",
+      "feature": "Emerald Lake",
+      "location": "Upper Fan",
+      "type": "Sedimentary",
+      "lat": 18.482988,
+      "lon": 77.368194,
+      "elevationM": -2420.8,
+      "localization": {
+        "sol": 821,
+        "site": 40,
+        "drive": 132,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 89,
+      "nextLocalizationSol": 836
+    },
+    {
+      "number": 21,
+      "name": "Pilot Mountain",
+      "solSealed": 913,
+      "dateSealed": "2023-09-15",
+      "feature": "Dream Lake",
+      "location": "Upper Fan",
+      "type": "Sedimentary",
+      "lat": 18.483443,
+      "lon": 77.350694,
+      "elevationM": -2423.3,
+      "localization": {
+        "sol": 911,
+        "site": 45,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 8,
+      "nextLocalizationSol": 925
+    },
+    {
+      "number": 22,
+      "name": "Pelican Point",
+      "solSealed": 923,
+      "dateSealed": "2023-09-25",
+      "feature": "Hans Amundsen Memorial Workspace",
+      "location": "Margin Unit",
+      "type": "Sedimentary",
+      "lat": 18.483443,
+      "lon": 77.350694,
+      "elevationM": -2423.3,
+      "localization": {
+        "sol": 911,
+        "site": 45,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 8,
+      "nextLocalizationSol": 925
+    },
+    {
+      "number": 23,
+      "name": "Lefroy Bay",
+      "solSealed": 949,
+      "dateSealed": "2023-10-21",
+      "feature": "Turquoise Bay",
+      "location": "Margin Unit",
+      "type": "Sedimentary",
+      "lat": 18.488715,
+      "lon": 77.347043,
+      "elevationM": -2407.7,
+      "localization": {
+        "sol": 933,
+        "site": 46,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 56,
+      "nextLocalizationSol": 950
+    },
+    {
+      "number": 24,
+      "name": "Comet Geyser",
+      "solSealed": 1088,
+      "dateSealed": "2024-03-12",
+      "feature": "Bunsen Peak",
+      "location": "Margin Unit",
+      "type": "Silica-cemented carbonate",
+      "lat": 18.491833,
+      "lon": 77.327203,
+      "elevationM": -2383,
+      "localization": {
+        "sol": 1084,
+        "site": 51,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 2,
+      "nextLocalizationSol": 1092
+    },
+    {
+      "number": 25,
+      "name": "Sapphire Canyon",
+      "solSealed": 1215,
+      "dateSealed": "2024-07-21",
+      "feature": "Cheyava Falls",
+      "location": "Neretva Vallis",
+      "type": "Sedimentary",
+      "lat": 18.497484,
+      "lon": 77.305191,
+      "elevationM": -2354,
+      "localization": {
+        "sol": 1210,
+        "site": 56,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 122,
+      "nextLocalizationSol": 1219
+    },
+    {
+      "number": 26,
+      "name": "Silver Mountain",
+      "solSealed": 1401,
+      "dateSealed": "2025-01-28",
+      "feature": "Shallow Bay",
+      "location": "Crater Rim (Witch Hazel Hill)",
+      "type": "Igneous/impactite",
+      "lat": 18.460553,
+      "lon": 77.264745,
+      "elevationM": -1820,
+      "localization": {
+        "sol": 1400,
+        "site": 66,
+        "drive": 0,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 5,
+      "nextLocalizationSol": 1403
+    },
+    {
+      "number": 27,
+      "name": "Green Gardens",
+      "solSealed": 1433,
+      "dateSealed": "2025-03-02",
+      "feature": "Tablelands",
+      "location": "Crater Rim (Witch Hazel Hill)",
+      "type": "Serpentinite",
+      "lat": 18.461407,
+      "lon": 77.2592,
+      "elevationM": -1906.7,
+      "localization": {
+        "sol": 1431,
+        "site": 69,
+        "drive": 2000,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 44,
+      "nextLocalizationSol": 1435
+    },
+    {
+      "number": 28,
+      "name": "Main River",
+      "solSealed": 1441,
+      "dateSealed": "2025-03-10",
+      "feature": "Broom Point",
+      "location": "Crater Rim (Witch Hazel Hill)",
+      "type": "Igneous/impactite",
+      "lat": 18.461727,
+      "lon": 77.258503,
+      "elevationM": -1918.5,
+      "localization": {
+        "sol": 1435,
+        "site": 69,
+        "drive": 2124,
+        "note": "End-of-drive localization"
+      },
+      "maxOffsetM": 5,
+      "nextLocalizationSol": 1445
+    }
+  ]
+}
