@@ -77,65 +77,6 @@ Coordinates are feature centres from the IAU/USGS Gazetteer of Planetary Nomencl
 
 If the browser has no WebGL, the globe button is hidden. If Mars Trek imagery can't load, missions fall back to the globe texture and say so.
 
-## Navigate Mars (route planning)
-
-The **Navigate Mars** button on the map opens a floating panel for planning exploration routes. The map stays fully interactive underneath.
-
-**Choosing places**
-- Search known places by name, with autocomplete (accents and case don't matter: "seitah" finds Séítah).
-- Type coordinates: `18.4447, 77.4508`, `18.44 N 77.45 E`, `18.65 N, 133.8 W` or `-14.53, 175.52`. These are Mars planetocentric coordinates, east-positive longitude (0–360 or ±180); the field validates them as you type.
-- Click the map: choose *Set as start*, *Set as destination* or *Add as waypoint*. Or use a field's ⌖ button and click the map.
-- Drag the A, B and numbered markers to move stops. Waypoints can be reordered or removed in the panel.
-
-**Modes**
-- *Shortest*: least distance, still never crossing slopes over 30°.
-- *Terrain-aware*: prefers gentle, smooth, level ground even when longer, and explains how it differs from the shortest route.
-- *Scientific discovery*: adds documented scientific sites within the extra distance you accept (minimal 10% / moderate 35% / extensive 80%, with small minimums).
-
-Every change replans automatically in a Web Worker: outdated computations are cancelled, the old route stays on screen until the new one arrives, and the view adjusts to show the whole route.
-
-**Route details** show distance (and straight-line distance), elevation gain and loss, an elevation profile (hover it to see the point on the map), slope breakdown, difficulty, number of science stops, data confidence, every stop (click to zoom), and the limitations. No travel time is given: that would need a rover mobility model.
-
-**Discover along the way** lists documented places near the route with their distance from it and an estimated detour. *Add to route* inserts the place as a waypoint and replans; *Restore original route* removes the added stops.
-
-### How routes are planned
-
-Implemented in `src/navigate/core/`, separate from the map:
-
-1. **Terrain** (`terrain.ts`): a 100 m grid derived from the USGS *Mars 2020 Science Investigation CTX DEM mosaic* of Jezero (20 m/pixel, public domain), with elevation, the 90th-percentile slope of the 20 m pixels in each cell, and roughness. Its georeferencing was checked against NASA's own rover elevations: across all 706 Perseverance localizations the DEM differs by a median of −0.4 m (90% within ±9 m). Cells without data count as unknown, never as safe.
-2. **Cost** (`costModel.ts`): `cost = length × (1 + 6·(slope/30°)² + 1.5·min(1, roughness/4 m) + uncertainty) + 6 × metres climbed + 2 × metres descended` for terrain-aware routing; plain length for the shortest route. Every term is ≥ 0. Slopes over 30° are impassable in every mode, and diagonal moves can't cut the corner of an impassable cell.
-3. **Pathfinding** (`pathfinding.ts`): A* on the 8-connected grid with an octile-distance heuristic (admissible, so routes are optimal for their cost), then smoothing (`smoothing.ts`) that straightens the grid staircase only where the straight segment touches no impassable cell and costs no more.
-4. **Science stops** (`routePlanner.ts`): a greedy orienteering heuristic picks the most valuable sites per kilometre of detour within your allowance, then pathfinding verifies the real detour and drops stops that exceed it.
-5. **Outside Jezero** there is no elevation data yet, so the planner gives a clearly labelled *direct-distance preview* along great circles on the Mars mean sphere (radius 3,389.5 km), dashed on the map, with no elevation, difficulty or hazards invented.
-
-All routes are educational, not certified rover-safe paths. The grid can't see boulders, sand or anything smaller than about 100 m.
-
-### Locations
-
-`src/navigate/core/locations.ts` holds only verified places, each with its source, coordinate convention, accuracy and available datasets:
-- **Perseverance sampling sites and the landing site**: NASA's published sample list joined with NASA's rover localizations, placing each sample at the rover's position on the sol it was sealed. The accuracy note gives the distance to the next published fix (≤ 263 m, mostly tens of metres).
-- **Informal regions** (Séítah, the delta front, the upper fan, the margin unit, Witch Hazel Hill, Hogwallow Flats): the centroid of NASA's sampling sites there, labelled as a representative point.
-- **IAU-named features** in and around Jezero, and the 26 global landmarks, from the IAU/USGS Gazetteer.
-
-On the map, locations appear by zoom level (global landmarks when zoomed out, Jezero features from regional zoom, rover sites close up) and cluster when they would overlap.
-
-### Rebuilding the data
-
-```bash
-# Terrain grid (download M20_JezeroCrater_CTXDEM_20m.tif, 87 MB, from USGS first)
-node scripts/build-jezero-terrain.mjs path/to/M20_JezeroCrater_CTXDEM_20m.tif
-# Sample sites (download https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json first)
-node scripts/build-jezero-locations.mjs path/to/M20_waypoints.json
-```
-
-### Tests
-
-```bash
-npm test   # Node's built-in test runner (Node 22.6+ runs the TypeScript directly)
-```
-
-33 tests cover coordinate conversions and parsing, Mars distances, terrain decoding and its agreement with rover elevations, A* optimality against Dijkstra, blocked terrain, cancellation, route endpoints, slope limits on real Jezero routes, waypoint insertion and removal, the science detour budget, missing-data behaviour and Discover along the way.
-
 ## Building on the map
 
 `<MarsMap>` is reusable and renders any children as overlays above the imagery. Inside them, `useMarsMap()` gives you the Leaflet map and the view controls:
@@ -188,23 +129,10 @@ src/
     surfacePatch.js          Builds a site's ground image from Mars Trek tiles
     astronaut.js             Procedural astronaut and walk cycle
     Explorer.tsx             Interface: search, landmark panel, mission HUD
-  navigate/                  Navigate Mars (loads only when opened)
-    core/                    Route planning, independent of the map: geography, terrain, cost model,
-                             A*, smoothing, planner, locations, discover along the way
-    data/                    Perseverance sample sites (generated, see scripts/)
-    routeWorker.ts           Runs the planner off the main thread
-    useRoutePlanner.ts       React hook: debouncing, cancellation, stale results
-    ui/                      Panel, location fields, route details, discover, map layers
 public/textures/             Globe textures for the intro and the globe explorer (not used by the map)
-public/data/                 Jezero terrain grid for route planning (generated, see scripts/)
-scripts/                     Rebuild the terrain grid and the sample-site data from NASA/USGS sources
-tests/navigate/              Automated tests for the route planner
 ```
 
 ## Credits
 
 - Map imagery: NASA Mars Trek (https://trek.nasa.gov/mars/). Viking MDIM 2.1 (NASA/USGS); MRO CTX (NASA/JPL-Caltech/MSSS); MRO HiRISE (NASA/JPL-Caltech/University of Arizona).
 - Intro globe: colour map from Solar System Scope (CC BY 4.0), based on NASA imagery; relief from MOLA elevation data.
-- Route terrain: USGS Astrogeology, Mars 2020 Science Investigation CTX DEM Mosaic (Calef et al., 2021; public domain), https://astrogeology.usgs.gov/search/map/mars_2020_science_investigation_ctx_dem_mosaic
-- Rover positions and samples: NASA Mars 2020 mission (MMGIS localizations; https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples/).
-- Place names: IAU/USGS Gazetteer of Planetary Nomenclature, https://planetarynames.wr.usgs.gov/

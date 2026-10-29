@@ -17,23 +17,11 @@
   stroke: none;
 }
 
-/* --------------------------------------------------- map entry buttons */
-.bt-map-entries {
+/* ---------------------------------------------------- map entry button */
+.bt-globe-entry {
   position: absolute;
   top: max(16px, env(safe-area-inset-top, 0px));
   left: max(16px, env(safe-area-inset-left, 0px));
-  right: max(16px, env(safe-area-inset-right, 0px));
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  pointer-events: none;
-}
-
-.bt-map-entries > * {
-  pointer-events: auto;
-}
-
-.bt-globe-entry {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -73,11 +61,11 @@
   color: #ffb07a;
 }
 
-.bt-map--blurred .bt-map-entries {
+.bt-map--blurred .bt-globe-entry {
   opacity: 0;
 }
 
-.bt-map--sharpening .bt-map-entries {
+.bt-map--sharpening .bt-globe-entry {
   opacity: 0;
   animation: bt-chrome-in 0.8s ease 1.4s forwards;
 }

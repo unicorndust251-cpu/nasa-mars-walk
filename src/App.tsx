@@ -5,15 +5,12 @@ import { markIntroPlayed, prefersReducedMotion, shouldPlayIntro, webglAvailable 
 import { handoffMapZoom } from './intro/introConfig.js';
 import { MarsMap, nearestWorldLng, type MarsMapHandle } from './map';
 import GlobeEntry from './explore/GlobeEntry';
-import NavigatorEntry from './navigate/ui/NavigatorEntry.tsx';
 import { parseGlobeHash, writeGlobeHash, type GlobeRoute } from './explore/globeRoute';
 import { toLon180 } from './explore/geo';
 import type { Landmark } from './explore/landmarks';
 
 // The 3D globe shares the intro's three.js chunk and loads only when opened
 const Explorer = lazy(() => import('./explore/Explorer'));
-// Route planning (panel, worker, location data) also loads only when opened
-const MarsNavigator = lazy(() => import('./navigate/ui/MarsNavigator.tsx'));
 
 type HandoffReason = 'descent' | 'skip' | 'timeout' | 'typeOnly' | 'reduced';
 
@@ -47,7 +44,6 @@ export default function App() {
   const [mapStart] = useState(() => planMapStart(showIntro));
   const [canGlobe] = useState(webglAvailable);
   const [globe, setGlobe] = useState<GlobeRoute | null>(() => (canGlobe ? parseGlobeHash() : null));
-  const [navigating, setNavigating] = useState(false);
   const mapRef = useRef<MarsMapHandle>(null);
 
   // Mark as played as soon as it starts, so a reload mid-intro goes straight to the map
@@ -111,17 +107,7 @@ export default function App() {
         startLevelsAbove={mapStart.startLevelsAbove}
         awaitReveal={mapStart.awaitReveal}
       >
-        {!navigating && !globe && (
-          <div className="bt-map-entries">
-            <NavigatorEntry onOpen={() => setNavigating(true)} />
-            {canGlobe && <GlobeEntry onOpen={openGlobe} />}
-          </div>
-        )}
-        {navigating && (
-          <Suspense fallback={null}>
-            <MarsNavigator onClose={() => setNavigating(false)} />
-          </Suspense>
-        )}
+        {canGlobe && !globe && <GlobeEntry onOpen={openGlobe} />}
       </MarsMap>
       {globe && (
         <Suspense fallback={<div className="bt-explorer-pending" aria-hidden="true" />}>
