@@ -18,14 +18,17 @@ import { createMarkerLayer } from './markers.js';
 import { createDetailTexture, createSite, groundZ } from './siteVisuals.js';
 import { buildAstronaut } from './astronaut.js';
 import { buildSurfacePatch } from './surfacePatch.js';
+import { createNavLayer } from './nav/navLayer.js';
+import { frameForPlace, frameForRoute } from './nav/navCamera';
 
 /**
  * The 3D globe explorer: the same Mars as the intro (materials, textures, atmosphere,
- * starfield), turned into an interactive globe with landmark markers and astronaut
- * exploration missions.
+ * starfield), turned into an interactive globe with landmark markers, astronaut
+ * exploration missions and the Mars Navigator's start, destination and route.
  *
- * Props: store (explorerStore), labels ({ hover, selected, checkpoints, progress } refs to
- * DOM elements the scene positions every frame), reducedMotion, onReady, onError.
+ * Props: store (explorerStore), nav (navStore), labels ({ hover, selected, checkpoints,
+ * progress, navStart, navTarget, navRoute } refs to DOM elements the scene positions every
+ * frame), reducedMotion, onReady, onError.
  */
 
 const SUN = new THREE.Vector3(...EXPLORE.sun).normalize();
@@ -102,7 +105,7 @@ function blendPose(a, b, t, out) {
 
 /* ========================================================================== */
 
-function ExplorerScene({ store, labels, reducedMotion, onReady }) {
+function ExplorerScene({ store, nav, labels, reducedMotion, onReady }) {
   const gl = useThree((s) => s.gl);
   const camera = useThree((s) => s.camera);
   const [color, normal] = useLoader(THREE.TextureLoader, [INTRO.textures.color, INTRO.textures.normal]);
@@ -119,6 +122,7 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
   const starGeometry = useMemo(() => createStarGeometry(INTRO.stars), []);
   const stars = useMemo(() => createStarMaterial(Math.min(2, window.devicePixelRatio || 1)), []);
   const markers = useMemo(() => createMarkerLayer(LANDMARKS), []);
+  const navLayer = useMemo(() => createNavLayer(), []);
   const astronaut = useMemo(() => buildAstronaut(), []);
   const detailTexture = useMemo(() => createDetailTexture(), []);
 
@@ -159,10 +163,11 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
       abort: null,
       patchCache: new Map(),
       viewToken: state.view.token,
+      navToken: nav.getState().view.token,
       ready: false,
       time: 0,
     };
-  }, [store]);
+  }, [store, nav]);
 
   /* ---------------------------------------------------------------- flights */
   const fly = (kind, durationOverride) => {
@@ -177,6 +182,11 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
     } else {
       target = { lat: EXPLORE.globe.overviewLat, lon: view.lon, dist: overviewDistance(aspect) };
     }
+    flyToView(target, durationOverride);
+  };
+
+  const flyToView = (target, durationOverride) => {
+    const { view } = d;
     gsap.killTweensOf(view);
     d.velocity.lat = d.velocity.lon = 0;
     const angle = angularDistanceDeg(view.lat, view.lon, target.lat, target.lon);
@@ -184,6 +194,34 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
     const duration = reducedRef.current ? 0 : durationOverride ?? clamp(0.9 + angle / 100 + zoomChange * 0.35, 1, 2.6);
     if (duration <= 0) Object.assign(view, target);
     else gsap.to(view, { ...target, duration, ease: 'power2.inOut' });
+  };
+
+  /** Navigator camera: centre and zoom on the start, the destination, or the whole route. */
+  const navFly = (kind) => {
+    const s = nav.getState();
+    const w = Math.max(1, gl.domElement.clientWidth);
+    const h = Math.max(1, gl.domElement.clientHeight);
+    const aspect = w / h;
+    // Share of the view left free by the navigator and the header (the view is shifted to its centre)
+    const ins = s.open ? store.runtime.navInsets : { left: 0, bottom: 0, top: 0 };
+    const freeW = Math.max(0.3, (w - ins.left) / w);
+    const freeH = Math.max(0.3, (h - ins.bottom - ins.top) / h);
+    const limits = {
+      tanHalfFov: TAN_HALF_FOV,
+      fitTan: 0.72 * TAN_HALF_FOV * Math.min(freeH, aspect * freeW),
+      minDist: EXPLORE.globe.minDistance,
+      maxDist: EXPLORE.globe.maxDistance,
+      overviewDist: overviewDistance(aspect),
+    };
+    let target;
+    if (kind === 'route' && s.route) target = s.route.identical ? frameForPlace(s.start, limits) : frameForRoute(s.route, limits);
+    else if (kind === 'start' && s.start) target = frameForPlace(s.start, limits);
+    else if (kind === 'destination' && s.destination) target = frameForPlace(s.destination, limits);
+    if (!target) return;
+    d.lastInteraction = d.time;
+    // The drag limit keeps the camera off the exact pole; a polar target still sits in view
+    const lat = clamp(target.lat, -EXPLORE.globe.maxDragLat, EXPLORE.globe.maxDragLat);
+    flyToView({ lat, lon: nearestLon(toLon180(target.lon), d.view.lon), dist: target.dist });
   };
 
   const beginTransition = (seconds) => {
@@ -299,6 +337,25 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, d]);
+
+  /* -------------------------------------------------------------- navigator */
+  useEffect(() => {
+    let last = {};
+    const sync = () => {
+      const s = nav.getState();
+      if (s.start !== last.start) navLayer.setStart(s.start);
+      if (s.destination !== last.destination) navLayer.setDestination(s.destination);
+      if (s.route !== last.route) navLayer.setRoute(s.route);
+      last = s;
+      if (s.view.token !== d.navToken) {
+        d.navToken = s.view.token;
+        if (d.mode === 'globe') navFly(s.view.kind);
+      }
+    };
+    sync();
+    return nav.subscribe(sync);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nav, navLayer, d]);
 
   /* ------------------------------------------------------------ interaction */
   useEffect(() => {
@@ -475,6 +532,7 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
       d.site = null;
       d.leaving = [];
       markers.dispose();
+      navLayer.dispose();
       astronaut.dispose();
       detailTexture.dispose();
       mars.material.dispose();
@@ -505,6 +563,7 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
     const simDt = Math.min(rawDelta, 0.25);
     d.time = clock.getElapsedTime();
     const state = store.getState();
+    const navState = nav.getState();
     const runtime = store.runtime;
     const reduced = reducedRef.current;
     const { view } = d;
@@ -537,7 +596,9 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
         d.velocity.lat = d.velocity.lon = 0;
       }
       const idle = d.time - d.lastInteraction > EXPLORE.globe.autoSpinDelay;
-      if (idle && !state.selectedId && !reduced && !gsap.isTweening(view)) view.lon += EXPLORE.globe.autoSpin * dt;
+      // Hold still while a navigation point is set, so it stays where the astronaut put it
+      const navigating = !!(navState.start || navState.destination);
+      if (idle && !state.selectedId && !navigating && !reduced && !gsap.isTweening(view)) view.lon += EXPLORE.globe.autoSpin * dt;
     }
     if (view.lon > 540 || view.lon < -540) view.lon = toLon180(view.lon);
 
@@ -606,9 +667,12 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
     camera.near = clamp(altitude * 0.25, 2e-6, 0.08);
     camera.far = 260;
 
-    // Keep the selected landmark clear of the info panel by shifting the view, not the planet
-    const wantX = d.mode === 'globe' && state.selectedId ? runtime.insets.right / 2 : 0;
-    const wantY = d.mode === 'globe' && state.selectedId ? runtime.insets.bottom / 2 : 0;
+    // Keep the selected landmark clear of the info panel, and the route clear of the
+    // navigator, by shifting the view, not the planet
+    const panel = d.mode === 'globe' && state.selectedId;
+    const navPanel = d.mode === 'globe' && navState.open;
+    const wantX = (panel ? runtime.insets.right / 2 : 0) - (navPanel ? runtime.navInsets.left / 2 : 0);
+    const wantY = (panel ? runtime.insets.bottom / 2 : 0) + (navPanel ? (runtime.navInsets.bottom - runtime.navInsets.top) / 2 : 0);
     d.shift.x += (wantX - d.shift.x) * damp(reduced ? 30 : 4, dt);
     d.shift.y += (wantY - d.shift.y) * damp(reduced ? 30 : 4, dt);
     if (Math.abs(d.shift.x) + Math.abs(d.shift.y) > 0.5) {
@@ -669,7 +733,27 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
       }
     }
 
-    /* 6. Site visuals and labels */
+    /* 6. Navigator: start marker, mission beacon, route and their labels */
+    navLayer.update({
+      camera,
+      width: size.width,
+      height: size.height,
+      pixelRatio: gl.getPixelRatio(),
+      time: d.time,
+      presence: d.presence,
+      reducedMotion: reduced,
+    });
+    for (const [el, p] of [
+      [labels.navStart?.current, navLayer.labels.start],
+      [labels.navTarget?.current, navLayer.labels.target],
+      [labels.navRoute?.current, navLayer.labels.route],
+    ]) {
+      if (!el) continue;
+      el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
+      el.style.opacity = String(p.visible);
+    }
+
+    /* 7. Site visuals and labels */
     tmp.sunLocal.copy(SUN).applyQuaternion(tmp.q.copy(tmp.siteQuat).invert());
     const cameraDistanceKm = site ? pose.pos.distanceTo(tmp.w.copy(site.astronautPosition).applyMatrix4(site.group.matrixWorld)) * MARS_RADIUS_KM : 100;
     if (site) {
@@ -752,6 +836,7 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
           <sphereGeometry args={[INTRO.planet.radius, INTRO.planet.segments, INTRO.planet.segments / 2]} />
         </mesh>
         <primitive object={markers.object} />
+        <primitive object={navLayer.object} />
       </group>
       <mesh material={atmosphere.material} scale={atmosphere.uniforms.uShell.value} renderOrder={1}>
         <sphereGeometry args={[INTRO.planet.radius, 96, 48]} />
@@ -760,7 +845,7 @@ function ExplorerScene({ store, labels, reducedMotion, onReady }) {
   );
 }
 
-export default function ExplorerCanvas({ store, labels, reducedMotion = false, onReady, onError }) {
+export default function ExplorerCanvas({ store, nav, labels, reducedMotion = false, onReady, onError }) {
   return (
     <SceneBoundary onError={onError}>
       <Canvas
@@ -781,7 +866,7 @@ export default function ExplorerCanvas({ store, labels, reducedMotion = false, o
       >
         <SceneBoundary onError={onError}>
           <Suspense fallback={null}>
-            <ExplorerScene store={store} labels={labels} reducedMotion={reducedMotion} onReady={onReady} />
+            <ExplorerScene store={store} nav={nav} labels={labels} reducedMotion={reducedMotion} onReady={onReady} />
           </Suspense>
         </SceneBoundary>
       </Canvas>

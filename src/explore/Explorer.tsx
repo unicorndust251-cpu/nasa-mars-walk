@@ -7,6 +7,10 @@ import { usePrefersReducedMotion } from '../map/usePrefersReducedMotion';
 import LandmarkSearch from './LandmarkSearch';
 import LandmarkPanel from './LandmarkPanel';
 import MissionHud from './MissionHud';
+import MarsNavigator from './nav/MarsNavigator';
+import { createNavStore, useNav } from './nav/navStore';
+import { FEATURED_PLACES } from './nav/places';
+import { formatKm } from './nav/distance';
 import { Icon } from './icons';
 import './explore.css';
 
@@ -16,12 +20,16 @@ export interface ExplorerProps {
   onViewOnMap(landmark: Landmark): void;
 }
 
+const NARROW = '(max-width: 760px)';
+
 /**
  * The 3D globe explorer: 26 glowing landmarks on the rotating planet, an information panel
- * for each, and an astronaut exploration mission at every one of them.
+ * for each, an astronaut exploration mission at every one of them, and the Mars Navigator.
  */
 export default function Explorer({ initial, onClose, onViewOnMap }: ExplorerProps) {
   const [store] = useState(() => createExplorerStore({ selectedId: initial.landmarkId, explore: initial.explore }));
+  // The navigator starts open where there's room for it beside the globe
+  const [nav] = useState(() => createNavStore({ open: !initial.landmarkId && !window.matchMedia(NARROW).matches }));
   const reducedMotion = usePrefersReducedMotion();
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -30,7 +38,21 @@ export default function Explorer({ initial, onClose, onViewOnMap }: ExplorerProp
   const selectedRef = useRef<HTMLDivElement>(null);
   const checkpointsRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const labels = useMemo(() => ({ hover: hoverRef, selected: selectedRef, checkpoints: checkpointsRef, progress: progressRef }), []);
+  const navStartRef = useRef<HTMLDivElement>(null);
+  const navTargetRef = useRef<HTMLDivElement>(null);
+  const navRouteRef = useRef<HTMLDivElement>(null);
+  const labels = useMemo(
+    () => ({
+      hover: hoverRef,
+      selected: selectedRef,
+      checkpoints: checkpointsRef,
+      progress: progressRef,
+      navStart: navStartRef,
+      navTarget: navTargetRef,
+      navRoute: navRouteRef,
+    }),
+    []
+  );
 
   const selectedId = useExplorer(store, (s) => s.selectedId);
   const mode = useExplorer(store, (s) => s.mode);
@@ -38,6 +60,29 @@ export default function Explorer({ initial, onClose, onViewOnMap }: ExplorerProp
   const reached = useExplorer(store, (s) => s.reached);
   const selected = landmarkById(selectedId);
   const mission = landmarkById(missionId);
+  const navOpen = useNav(nav, (s) => s.open);
+  const navStart = useNav(nav, (s) => s.start);
+  const navDestination = useNav(nav, (s) => s.destination);
+  const navRoute = useNav(nav, (s) => s.route);
+
+  // On a phone the landmark panel and the navigator share the bottom of the screen: choosing
+  // a landmark on the globe puts the navigator away
+  useEffect(() => {
+    if (selectedId && window.matchMedia(NARROW).matches) nav.setOpen(false);
+  }, [selectedId, nav]);
+
+  /** From a landmark's panel: use it as a navigator endpoint. */
+  const navigateWith = useCallback(
+    (landmark: Landmark, role: 'start' | 'destination') => {
+      const place = FEATURED_PLACES.find((p) => p.landmarkId === landmark.id);
+      if (!place) return;
+      store.deselect();
+      nav.setOpen(true);
+      if (role === 'start') nav.setStart(place);
+      else nav.setDestination(place);
+    },
+    [store, nav]
+  );
 
   // Keep the URL in step with what's on screen
   useEffect(() => {
@@ -69,10 +114,10 @@ export default function Explorer({ initial, onClose, onViewOnMap }: ExplorerProp
   const handleError = useCallback(() => setFailed(true), []);
 
   return (
-    <div ref={rootRef} className={`bt-explorer${ready ? ' is-ready' : ''}`} data-mode={mode} role="region" aria-label="3D Mars globe with famous landmarks">
+    <div ref={rootRef} className={`bt-explorer${ready ? ' is-ready' : ''}${navOpen && mode === 'globe' ? ' has-nav' : ''}`} data-mode={mode} role="region" aria-label="3D Mars globe with famous landmarks">
       {!failed && (
         <div className="bt-explorer__stage">
-          <ExplorerCanvas store={store} labels={labels} reducedMotion={reducedMotion} onReady={handleReady} onError={handleError} />
+          <ExplorerCanvas store={store} nav={nav} labels={labels} reducedMotion={reducedMotion} onReady={handleReady} onError={handleError} />
         </div>
       )}
       <div className="bt-explorer__vignette" aria-hidden="true" />
@@ -88,6 +133,24 @@ export default function Explorer({ initial, onClose, onViewOnMap }: ExplorerProp
         <div ref={selectedRef} className="bt-tag bt-tag--selected" hidden={!selected || mode !== 'globe'}>
           <div className="bt-tag__inner">
             <span className="bt-tag__name">{selected?.name}</span>
+          </div>
+        </div>
+        <div ref={navRouteRef} className="bt-tag bt-tag--nav-route" hidden={!navRoute || navRoute.identical || mode !== 'globe'}>
+          <div className="bt-tag__inner">
+            <span className="bt-tag__kicker">Simulated geographic route</span>
+            <span className="bt-tag__meta">Terrain safety not yet verified{navRoute ? ` · ${formatKm(navRoute.distanceKm)}` : ''}</span>
+          </div>
+        </div>
+        <div ref={navStartRef} className="bt-tag bt-tag--nav-start" hidden={!navStart || mode !== 'globe'}>
+          <div className="bt-tag__inner">
+            <span className="bt-tag__kicker">Start</span>
+            <span className="bt-tag__name">{navStart?.name}</span>
+          </div>
+        </div>
+        <div ref={navTargetRef} className="bt-tag bt-tag--nav-target" hidden={!navDestination || mode !== 'globe'}>
+          <div className="bt-tag__inner">
+            <span className="bt-tag__kicker">Mission target</span>
+            <span className="bt-tag__name">{navDestination?.name}</span>
           </div>
         </div>
         <div ref={checkpointsRef}>
@@ -107,10 +170,24 @@ export default function Explorer({ initial, onClose, onViewOnMap }: ExplorerProp
         <button type="button" className="bt-btn bt-btn--ghost" onClick={onClose}>
           <Icon name="back" /> Map
         </button>
+        {mode === 'globe' && (
+          <button
+            type="button"
+            className={`bt-btn bt-btn--ghost bt-nav-toggle${navOpen ? ' is-on' : ''}`}
+            aria-pressed={navOpen}
+            onClick={() => nav.setOpen(!navOpen)}
+          >
+            <Icon name="route" /> Navigator
+          </button>
+        )}
         {mode === 'globe' && <LandmarkSearch selectedId={selectedId} onSelect={(id) => store.select(id)} />}
       </header>
 
-      {mode === 'globe' && selected && <LandmarkPanel key={selected.id} landmark={selected} store={store} onViewOnMap={onViewOnMap} />}
+      {mode === 'globe' && navOpen && <MarsNavigator nav={nav} store={store} />}
+
+      {mode === 'globe' && selected && (
+        <LandmarkPanel key={selected.id} landmark={selected} store={store} onViewOnMap={onViewOnMap} onNavigate={navigateWith} />
+      )}
 
       {mode === 'globe' && (
         <>

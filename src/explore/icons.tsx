@@ -15,7 +15,10 @@ type IconName =
   | 'exit'
   | 'map'
   | 'flag'
-  | 'check';
+  | 'check'
+  | 'route'
+  | 'target'
+  | 'pin';
 
 const PATHS: Record<IconName, JSX.Element> = {
   back: <path d="M11.5 4.5 6 10l5.5 5.5M6.5 10H16" />,
@@ -59,6 +62,26 @@ const PATHS: Record<IconName, JSX.Element> = {
   map: <path d="M3.5 5.5 7.8 4l4.4 1.5L16.5 4v10.5L12.2 16l-4.4-1.5L3.5 16zM7.8 4v10.5M12.2 5.5V16" />,
   flag: <path d="M5.5 16.5v-12M5.5 4.5h9l-2 3 2 3h-9" />,
   check: <path d="m4.8 10.4 3.4 3.3 7-7.2" />,
+  route: (
+    <>
+      <circle cx="5" cy="14.5" r="1.8" />
+      <circle cx="15" cy="5.5" r="1.8" />
+      <path d="M6.6 13.4c2-1.6 2.2-3.2 4-4.4s2.4-1.6 2.8-2.3" strokeDasharray="1.6 1.8" />
+    </>
+  ),
+  target: (
+    <>
+      <circle cx="10" cy="10" r="5.2" />
+      <circle cx="10" cy="10" r="1.4" className="bt-fill" />
+      <path d="M10 2.8v2.4M10 14.8v2.4M2.8 10h2.4M14.8 10h2.4" />
+    </>
+  ),
+  pin: (
+    <>
+      <path d="M10 17s-5-4.6-5-8.6a5 5 0 0 1 10 0c0 4-5 8.6-5 8.6z" />
+      <circle cx="10" cy="8.4" r="1.8" />
+    </>
+  ),
 };
 
 export function Icon({ name }: { name: IconName }) {

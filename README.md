@@ -77,6 +77,37 @@ Coordinates are feature centres from the IAU/USGS Gazetteer of Planetary Nomencl
 
 If the browser has no WebGL, the globe button is hidden. If Mars Trek imagery can't load, missions fall back to the globe texture and say so.
 
+## Mars Navigator
+
+The **Navigator** button on the 3D globe opens a panel for planning a geographic route between two points. It's open by default on wide screens and works as a bottom sheet on phones. The astronaut types in both ends; nothing detects a position, and the site has no live positioning on Mars.
+
+- **Start and destination** accept a place name or coordinates. Names match case- and accent-insensitively, partial names suggest matches (`Jez` → Jezero Crater, `Nili` → Nili Fossae, Nili Planum…), and same-named features are told apart by type and position. Coordinates can be typed as `18.40, 77.50`, `5.4S 137.8E` or `18.4N 77.5W`, or entered in the Lat / Lon boxes. Out-of-range values (for example latitude 95°) are rejected with a message.
+- **Searchable places:** the 26 featured landmarks plus all 2,051 IAU-approved Mars feature names in the USGS Gazetteer. The Gazetteer list loads the first time a field is used. Only the 26 landmarks keep permanent glowing markers; other places appear only when chosen. A Gazetteer record for the same feature as a landmark (Jezero → Jezero Crater) is merged into the landmark.
+- **On the globe:** a green **START** marker, a **MISSION TARGET** beacon (hexagonal pad, cyan beam, ground pulse and reticle) and a glowing dotted orange route that follows the planet's curve and turns with it. The camera flies to each point as it is chosen, then frames the whole route. Routes longer than about 140° of arc get the hemisphere overview instead. **Focus Start**, **Focus Destination**, **Show Full Route** and **Reset Route** do what they say. A landmark's info panel can also hand it to the navigator (**Navigate from here** / **Navigate here**).
+- **Distance** is the Haversine great-circle distance on a sphere of radius 3,389.5 km (the Mars mean radius). It updates whenever either end changes. It is a geographic surface distance, not a walking distance.
+- **Edge cases:** routes wrap across 0°/360° and pass over the poles. Identical points give 0 km and no line. For exactly opposite points every great circle is equally short, so the route takes a fixed one (due north from the start) and the panel says so.
+- **Not a safe path.** The route is labelled *Simulated geographic route — terrain safety not yet verified*. It ignores relief, slopes, rocks and every other hazard.
+- **For a future astronaut walk:** the route's evenly spaced waypoints (about every 3 km, each with its distance from the start) are kept in `navStore.getState().route`. `pointAtKm(route, km)` in `routeGeometry.ts` interpolates along them, so an animation can step through a local stretch.
+
+**Coordinates and corrections.** Every place uses its Gazetteer feature centre: planetocentric latitude, longitude 0–360° E. Large features (anything over 60 km) are flagged as having a reference point, not an exact position. The project brief listed reference coordinates for 36 places. Checked against the Gazetteer's `MARS_nomenclature_center_pts` dataset, these differ from the official centres by more than 0.3°, so the official values are used:
+
+| Place | Brief | Gazetteer (used) |
+| --- | --- | --- |
+| Valles Marineris | −13.74, 300.80 | −14.01, 301.41 |
+| Planum Boreum | 85.00, 180.00 | 87.32, 54.96 |
+| Planum Australe | −85.00, 180.00 | −83.35, 157.70 |
+| Pavonis Mons | 0.80, 246.60 | 1.48, 247.04 |
+| Noctis Labyrinthus | −7.00, 258.00 | −6.36, 258.81 |
+| Mawrth Vallis | 22.30, 343.50 | 22.43, 343.03 |
+| Oxia Planum | 18.20, 335.90 | 17.28, 334.29 |
+| Meridiani Planum | −2.00, 5.00 | −0.04, 356.86 |
+| Deuteronilus Mensae | 43.90, 337.00 | 45.11, 23.92 |
+| Medusae Fossae (Formation) | −5.00, 180.00 | −2.17, 195.80 |
+| Nili Fossae | 22.56, 76.80 | 22.02, 76.69 |
+| Syrtis Major Planum | 8.40, 69.50 | 9.20, 67.10 |
+
+The other 24 agree to within 0.3° (most to 0.05°). The 26 landmarks already used the Gazetteer values, so they are unchanged. To refresh the name index, download `MARS_nomenclature_center_pts.zip` from the USGS Astrogeology site and run `node scripts/build-mars-places.mjs path/to/MARS_nomenclature_center_pts.dbf`.
+
 ## Building on the map
 
 `<MarsMap>` is reusable and renders any children as overlays above the imagery. Inside them, `useMarsMap()` gives you the Leaflet map and the view controls:
@@ -128,7 +159,20 @@ src/
     siteVisuals.js           Imagery patch, route ribbon, checkpoint beacons
     surfacePatch.js          Builds a site's ground image from Mars Trek tiles
     astronaut.js             Procedural astronaut and walk cycle
-    Explorer.tsx             Interface: search, landmark panel, mission HUD
+    Explorer.tsx             Interface: search, landmark panel, mission HUD, navigator
+    nav/                     Mars Navigator
+      places.ts              Searchable places: featured landmarks + Gazetteer index (lazy)
+      data/marsGazetteer.json  2,051 IAU Mars feature names, built by scripts/build-mars-places.mjs
+      search.ts              Name matching, suggestions, duplicate names
+      coordinates.ts         Lat/lon parsing, validation, 0–360° E normalisation
+      distance.ts            Haversine great-circle distance (R = 3,389.5 km)
+      routeGeometry.ts       Great-circle waypoints, pointAtKm for future astronaut movement
+      navCamera.ts           Camera framing for a point or a whole route
+      navStore.ts            Start, destination, route and camera requests
+      navLayer.js            Puts the START marker, beacon and route on the planet
+      startMarker.js · missionBeacon.js · routeDots.js   The three scene objects
+      MarsNavigator.tsx · PlaceField.tsx · nav.css         The panel
+scripts/build-mars-places.mjs  Rebuilds the name index from the USGS Gazetteer
 public/textures/             Globe textures for the intro and the globe explorer (not used by the map)
 ```
 

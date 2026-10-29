@@ -10,10 +10,12 @@ interface LandmarkPanelProps {
   landmark: Landmark;
   store: ExplorerStore;
   onViewOnMap(landmark: Landmark): void;
+  /** Use this landmark as the Mars Navigator's start or destination */
+  onNavigate?(landmark: Landmark, role: 'start' | 'destination'): void;
 }
 
 /** Information about the selected landmark, with the way into its exploration mission. */
-export default function LandmarkPanel({ landmark, store, onViewOnMap }: LandmarkPanelProps) {
+export default function LandmarkPanel({ landmark, store, onViewOnMap, onNavigate }: LandmarkPanelProps) {
   const ref = useRef<HTMLElement>(null);
 
   // Tell the scene how much room the panel takes, so the landmark stays in the clear
@@ -81,6 +83,16 @@ export default function LandmarkPanel({ landmark, store, onViewOnMap }: Landmark
           <Icon name="map" /> View on NASA map
         </button>
       </div>
+      {onNavigate && (
+        <div className="bt-panel__actions bt-panel__actions--nav">
+          <button type="button" className="bt-btn" onClick={() => onNavigate(landmark, 'start')}>
+            <Icon name="pin" /> Navigate from here
+          </button>
+          <button type="button" className="bt-btn" onClick={() => onNavigate(landmark, 'destination')}>
+            <Icon name="target" /> Navigate here
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

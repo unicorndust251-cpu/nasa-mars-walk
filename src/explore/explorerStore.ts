@@ -47,6 +47,8 @@ export interface ExplorerRuntime {
   routeKm: number;
   /** Space covered by interface panels, so the camera can keep the selection in the clear (px) */
   insets: { right: number; bottom: number };
+  /** Space covered by the Mars Navigator panel, and by the header above it (px) */
+  navInsets: { left: number; bottom: number; top: number };
   /** Zoom steps requested by the interface, consumed by the scene */
   zoomSteps: number;
 }
@@ -59,6 +61,8 @@ export interface ExplorerStore {
   select(id: string): void;
   /** Deselect and show the whole planet again */
   resetView(): void;
+  /** Close the landmark panel without moving the camera (the navigator is about to fly) */
+  deselect(): void;
   zoomBy(steps: number): void;
 
   startExploration(): void;
@@ -90,7 +94,7 @@ export function createExplorerStore(initial: { selectedId?: string | null; explo
     summary: null,
     view: { kind: selected ? 'landmark' : 'overview', token: 1 },
   };
-  const runtime: ExplorerRuntime = { distanceKm: 0, walkingMs: 0, routeKm: 0, insets: { right: 0, bottom: 0 }, zoomSteps: 0 };
+  const runtime: ExplorerRuntime = { distanceKm: 0, walkingMs: 0, routeKm: 0, insets: { right: 0, bottom: 0 }, navInsets: { left: 0, bottom: 0, top: 0 }, zoomSteps: 0 };
   const listeners = new Set<() => void>();
 
   const set = (patch: Partial<ExplorerState>) => {
@@ -119,6 +123,9 @@ export function createExplorerStore(initial: { selectedId?: string | null; explo
     resetView() {
       if (state.mode === 'explore') return;
       set({ selectedId: null, ...flyTo('overview') });
+    },
+    deselect() {
+      if (state.mode === 'globe' && state.selectedId) set({ selectedId: null });
     },
     zoomBy(steps) {
       runtime.zoomSteps += steps;
